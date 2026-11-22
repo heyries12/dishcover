@@ -23,7 +23,7 @@ The included `render.yaml` and `Dockerfile` deploy the app on Render's free web-
 
 ## Social Sign-In
 
-Google and Apple use real OAuth redirects and automatically create or link a Dishcover account by verified email. Configure these secret environment variables in Render.
+Google uses a real OAuth redirect and automatically creates or links a Dishcover account by verified email. Configure these secret environment variables in Render.
 
 Google:
 
@@ -31,12 +31,4 @@ Google:
 - `Authentication__Google__ClientSecret`
 - Authorized redirect URI: `https://dishcover-odv1.onrender.com/signin-google`
 
-Apple:
-
-- `Authentication__Apple__ClientId` (Services ID)
-- `Authentication__Apple__TeamId`
-- `Authentication__Apple__KeyId`
-- `Authentication__Apple__PrivateKey` (the `.p8` contents; escaped `\n` line breaks are supported)
-- Return URL: `https://dishcover-odv1.onrender.com/signin-apple`
-
-Apple Sign In requires an Apple Developer account. If a provider is not configured, its button remains visible with a setup status instead of starting a broken OAuth redirect.
+If Google is not configured, its button remains visible with a setup status instead of starting a broken OAuth redirect.

@@ -61,7 +61,7 @@ let storyTimer;
 let searchResults = null;
 let searchTimer;
 let searchRequest;
-let socialProviders = { google: false, apple: false };
+let socialProviders = { google: false };
 
 const $ = (selector, context = document) => context.querySelector(selector);
 const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
@@ -107,9 +107,9 @@ async function loadAppData() {
 
 async function loadSocialProviders() {
   try {
-    socialProviders = await api("/api/auth/providers");
+    socialProviders = await api("/api/auth/providers") || { google: false };
   } catch {
-    socialProviders = { google: false, apple: false };
+    socialProviders = { google: false };
   }
   $$("[data-provider]").forEach((button) => {
     const available = Boolean(socialProviders[button.dataset.provider.toLowerCase()]);
@@ -117,9 +117,9 @@ async function loadSocialProviders() {
     button.setAttribute("aria-disabled", String(!available));
     button.title = available ? `Continue with ${button.dataset.provider}` : `${button.dataset.provider} sign-in requires provider configuration`;
   });
-  const anyAvailable = socialProviders.google || socialProviders.apple;
+  const anyAvailable = socialProviders.google;
   $("#socialStatus").hidden = anyAvailable;
-  $("#socialStatus").textContent = anyAvailable ? "" : "Google and Apple sign-in are awaiting provider credentials.";
+  $("#socialStatus").textContent = anyAvailable ? "" : "Google sign-in is awaiting provider credentials.";
 }
 
 function startSocialLogin(provider) {
@@ -139,7 +139,7 @@ function bindEvents() {
   $("#authForm").addEventListener("submit", handleAuth);
   $("#forgotPassword").addEventListener("click", () => showToast("Password reset is coming in the connected backend."));
   $$("[data-provider]").forEach((button) => button.addEventListener("click", () => startSocialLogin(button.dataset.provider)));
-  $("#logoutButton").addEventListener("click", logout);
+  $("#logoutButton").addEventListener("click", openLogoutConfirmation);
   $$("[data-page]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.page)));
   $$("[data-open-upload]").forEach((button) => button.addEventListener("click", openUploadModal));
   $$("[data-close-modal]").forEach((button) => button.addEventListener("click", closeUploadModal));
@@ -190,7 +190,10 @@ function bindEvents() {
   $$("[data-theme-choice-setting]").forEach((button) => button.addEventListener("click", () => setThemePreference(button.dataset.themeChoiceSetting)));
   $$("[data-notification-setting]").forEach((input) => input.addEventListener("change", saveNotificationSettings));
   $$("[data-settings-target]").forEach((button) => button.addEventListener("click", () => scrollToSettingsSection(button)));
-  $("#settingsLogout").addEventListener("click", logout);
+  $("#settingsLogout").addEventListener("click", openLogoutConfirmation);
+  $("#confirmLogout").addEventListener("click", logout);
+  $$("[data-close-logout-confirm]").forEach((button) => button.addEventListener("click", closeLogoutConfirmation));
+  $("#logoutConfirmModal").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeLogoutConfirmation(); });
   $("[data-close-message-media]").addEventListener("click", closeMessageMediaViewer);
   $("#messageMediaViewer").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeMessageMediaViewer(); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
@@ -325,7 +328,19 @@ async function showApp() {
   navigate("home");
 }
 
+function openLogoutConfirmation() {
+  $("#logoutConfirmModal").hidden = false;
+  document.body.style.overflow = "hidden";
+  setTimeout(() => $("#confirmLogout").focus(), 20);
+}
+
+function closeLogoutConfirmation() {
+  $("#logoutConfirmModal").hidden = true;
+  document.body.style.overflow = "";
+}
+
 async function logout() {
+  closeLogoutConfirmation();
   try {
     await api("/api/auth/logout", { method: "POST" });
   } catch (error) {
@@ -1402,6 +1417,7 @@ function handleKeyboard(event) {
     closeStoryViewer();
     closePublicProfile();
     closeMessageMediaViewer();
+    closeLogoutConfirmation();
     closeProfileEditor();
     closeNotifications();
   }

@@ -32,16 +32,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-var appleClientId = builder.Configuration["Authentication:Apple:ClientId"];
-var appleTeamId = builder.Configuration["Authentication:Apple:TeamId"];
-var appleKeyId = builder.Configuration["Authentication:Apple:KeyId"];
-var applePrivateKey = builder.Configuration["Authentication:Apple:PrivateKey"];
 var googleConfigured = !string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret);
-var appleConfigured = !string.IsNullOrWhiteSpace(appleClientId) &&
-    !string.IsNullOrWhiteSpace(appleTeamId) &&
-    !string.IsNullOrWhiteSpace(appleKeyId) &&
-    !string.IsNullOrWhiteSpace(applePrivateKey);
-builder.Services.AddSingleton(new SocialAuthAvailability(googleConfigured, appleConfigured));
+builder.Services.AddSingleton(new SocialAuthAvailability(googleConfigured));
 
 var authentication = builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -96,25 +88,6 @@ if (googleConfigured)
     });
 }
 
-if (appleConfigured)
-{
-    authentication.AddApple("Apple", options =>
-    {
-        options.SignInScheme = ApiEndpoints.ExternalCookieScheme;
-        options.ClientId = appleClientId!;
-        options.TeamId = appleTeamId!;
-        options.KeyId = appleKeyId!;
-        options.GenerateClientSecret = true;
-        options.PrivateKey = (_, _) => Task.FromResult<ReadOnlyMemory<char>>(applePrivateKey!.Replace("\\n", "\n").AsMemory());
-        options.SaveTokens = false;
-        options.Events.OnRemoteFailure = context =>
-        {
-            context.HandleResponse();
-            context.Response.Redirect("/?socialError=Apple%20sign-in%20was%20cancelled%20or%20failed.");
-            return Task.CompletedTask;
-        };
-    });
-}
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using AspNet.Security.OAuth.Apple;
 using Dishcover.Api.Data;
 using Dishcover.Api.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -91,9 +90,7 @@ public static class ApiEndpoints
         var scheme = provider.ToLowerInvariant() switch
         {
             "google" when availability.Google => GoogleDefaults.AuthenticationScheme,
-            "apple" when availability.Apple => AppleAuthenticationDefaults.AuthenticationScheme,
             "google" => string.Empty,
-            "apple" => string.Empty,
             _ => null
         };
         if (scheme is null)

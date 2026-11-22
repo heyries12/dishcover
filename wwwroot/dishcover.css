@@ -113,10 +113,9 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .primary-button.compact { width: auto; }
 .divider { display: flex; align-items: center; gap: 12px; margin: 17px 0 13px; color: #989d99; font-size: 9px; text-transform: uppercase; letter-spacing: .8px; }
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.social-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.social-buttons { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .social-button { padding: 10px; background: white; border: 1px solid #dedad3; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
 .social-button b { margin-right: 6px; color: #4285f4; font-size: 14px; }
-.social-button.apple b { color: #111; }
 .social-button.unavailable { opacity: .62; }
 .social-status { margin: 10px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .auth-terms { margin: 15px 0 0; color: #919690; font-size: 9px; text-align: center; }
@@ -470,6 +469,13 @@ kbd { padding: 3px 5px; color: #929893; background: #f0ede7; border: 1px solid #
 .modal { width: min(620px,100%); max-height: calc(100vh - 40px); padding: 25px; background: var(--paper); border-radius: 19px; box-shadow: var(--shadow); overflow-y: auto; }
 .modal > header, .notification-drawer > header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .modal h2, .notification-drawer h2 { margin: 0; font: 600 25px var(--font-display); }
+.confirmation-modal { width: min(410px,100%); padding: 32px; text-align: center; }
+.confirmation-icon { display: grid; width: 54px; height: 54px; margin: 0 auto 15px; color: var(--tomato-dark); background: #f8e8e2; border-radius: 50%; place-items: center; }
+.confirmation-icon svg { width: 23px; }
+.confirmation-modal > p { margin: 9px auto 23px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.confirmation-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.confirmation-actions button { min-height: 42px; }
+.logout-confirm-button { color: white; background: var(--tomato); border: 0; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; }
 .upload-modal { width: min(760px,100%); }
 .upload-area { position: relative; min-height: 190px; margin-bottom: 17px; color: var(--muted); background: #f4f0e8; border: 1px dashed #c9c2b7; border-radius: 13px; overflow: hidden; }
 .upload-placeholder { display: grid; width: 100%; min-height: 190px; align-content: center; justify-items: center; gap: 5px; padding: 20px; color: var(--muted); background: transparent; border: 0; cursor: pointer; }
@@ -778,6 +784,7 @@ html[data-theme="dark"] .danger-settings-card { border-color: #604039; }
 html[data-theme="dark"] .danger-settings-card button { color: #ff9a80; background: #382722; border-color: #754a40; }
 html[data-theme="dark"] .settings-card > header > span { color: #ff9a80; background: #382722; }
 html[data-theme="dark"] .settings-account-person small { color: #b9cab7; background: #2c3a2f; }
+html[data-theme="dark"] .confirmation-icon { background: #382722; }
 html[data-theme="dark"] .profile-cover { filter: brightness(.8); }
 html[data-theme="dark"] kbd { color: #aeb8b0; background: #283029; border-color: #3a443d; }
 html[data-theme="dark"] .divider::before,

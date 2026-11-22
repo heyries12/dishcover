@@ -164,7 +164,6 @@
           <div class="divider"><span>or continue with</span></div>
           <div class="social-buttons">
             <button type="button" class="social-button" data-provider="Google"><b>G</b> Google</button>
-            <button type="button" class="social-button apple" data-provider="Apple"><b>●</b> Apple</button>
           </div>
           <p class="social-status" id="socialStatus" hidden></p>
           <p class="auth-terms">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
@@ -375,6 +374,15 @@
         <button type="button" data-page="profile"><svg><use href="#icon-user"></use></svg><span>Profile</span></button>
       </nav>
     </main>
+
+    <div class="modal-backdrop" id="logoutConfirmModal" hidden>
+      <section class="modal confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle">
+        <span class="confirmation-icon"><svg><use href="#icon-logout"></use></svg></span>
+        <h2 id="logoutConfirmTitle">Log out of Dishcover?</h2>
+        <p>You will need to sign in again to access your kitchen, messages, and saved dishes.</p>
+        <div class="confirmation-actions"><button type="button" class="outline-button" data-close-logout-confirm>Stay logged in</button><button type="button" class="logout-confirm-button" id="confirmLogout">Log out</button></div>
+      </section>
+    </div>
 
     <div class="modal-backdrop" id="uploadModal" hidden>
       <section class="modal upload-modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">

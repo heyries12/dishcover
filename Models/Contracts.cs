@@ -117,7 +117,7 @@ public sealed record SearchProfileResponse(
 public sealed record SearchResponse(
     IReadOnlyList<PostResponse> Posts,
     IReadOnlyList<SearchProfileResponse> Profiles);
-public sealed record SocialAuthAvailability(bool Google, bool Apple);
+public sealed record SocialAuthAvailability(bool Google);
 
 public sealed class StoredPostDetails
 {
