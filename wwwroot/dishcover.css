@@ -123,31 +123,32 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 
 /* App shell */
 .app-view { min-height: 100vh; background: var(--cream); }
-.sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; display: flex; width: 226px; flex-direction: column; padding: 30px 22px 20px; background: var(--paper); border-right: 1px solid var(--line); }
-.sidebar > .brand { margin: 0 10px 39px; }
-.side-nav { display: grid; gap: 5px; }
-.nav-item { display: flex; width: 100%; align-items: center; gap: 14px; padding: 11px 13px; color: #778079; background: none; border: 0; border-radius: 11px; font-size: 12px; font-weight: 600; text-align: left; cursor: pointer; }
-.nav-item svg { width: 19px; }
+.sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; display: flex; width: 280px; flex-direction: column; padding: 34px 28px 24px; background: var(--paper); border-right: 0; box-shadow: 8px 0 32px rgba(48,40,31,.045); }
+.sidebar > .brand { margin: 0 8px 44px; font-size: 29px; }
+.sidebar > .brand .brand-mark { width: 40px; height: 40px; }
+.side-nav { display: grid; gap: 8px; }
+.nav-item { display: flex; width: 100%; min-height: 50px; align-items: center; gap: 16px; padding: 13px 16px; color: #778079; background: none; border: 0; border-radius: 13px; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+.nav-item svg { width: 22px; height: 22px; }
 .nav-item:hover { color: var(--ink); background: #f5f1e9; }
 .nav-item.active { color: var(--tomato-dark); background: #f9e9e3; }
-.nav-item i { display: grid; width: 18px; height: 18px; margin-left: auto; color: white; background: var(--tomato); border-radius: 50%; font-size: 9px; font-style: normal; place-items: center; }
-.sidebar-prompt { position: relative; margin-top: auto; padding: 18px 15px 14px; background: #e9eee4; border-radius: 15px; overflow: hidden; }
-.sidebar-prompt > span { display: grid; width: 34px; height: 34px; margin-bottom: 11px; color: #4e6d52; background: white; border-radius: 9px; place-items: center; }
-.sidebar-prompt > span svg { width: 19px; }
-.sidebar-prompt strong { font: 600 14px var(--font-display); }
-.sidebar-prompt p { margin: 6px 0 12px; color: #6e796e; font-size: 10px; line-height: 1.45; }
-.sidebar-prompt button { padding: 8px 10px; color: white; background: #556f58; border: 0; border-radius: 8px; font-size: 9px; font-weight: 700; cursor: pointer; }
-.sidebar-user { display: flex; align-items: center; gap: 9px; margin-top: 18px; padding: 12px 5px 0; border-top: 1px solid var(--line); }
-.sidebar-user img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+.nav-item i { display: grid; width: 22px; height: 22px; margin-left: auto; color: white; background: var(--tomato); border-radius: 50%; font-size: 10px; font-style: normal; place-items: center; }
+.sidebar-prompt { position: relative; margin-top: auto; padding: 22px 19px 18px; background: #e9eee4; border-radius: 17px; overflow: hidden; }
+.sidebar-prompt > span { display: grid; width: 40px; height: 40px; margin-bottom: 13px; color: #4e6d52; background: white; border-radius: 10px; place-items: center; }
+.sidebar-prompt > span svg { width: 22px; }
+.sidebar-prompt strong { font: 600 18px var(--font-display); }
+.sidebar-prompt p { margin: 8px 0 15px; color: #6e796e; font-size: 12px; line-height: 1.5; }
+.sidebar-prompt button { padding: 10px 13px; color: white; background: #556f58; border: 0; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.sidebar-user { display: flex; align-items: center; gap: 11px; margin-top: 20px; padding: 15px 5px 0; border-top: 1px solid var(--line); }
+.sidebar-user img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
 .sidebar-user div { display: grid; min-width: 0; gap: 1px; }
-.sidebar-user strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.sidebar-user span { color: var(--muted); font-size: 9px; }
-.sidebar-user button { display: grid; width: 30px; height: 30px; margin-left: auto; padding: 0; color: #87908a; background: none; border: 0; cursor: pointer; place-items: center; }
-.sidebar-user svg { width: 17px; }
-.app-content { min-height: 100vh; margin-left: 226px; }
+.sidebar-user strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-user span { color: var(--muted); font-size: 10px; }
+.sidebar-user button { display: grid; width: 34px; height: 34px; margin-left: auto; padding: 0; color: #87908a; background: none; border: 0; cursor: pointer; place-items: center; }
+.sidebar-user svg { width: 19px; }
+.app-content { min-height: 100vh; margin-left: 280px; }
 .page { min-height: 100vh; }
-#page-home { display: grid; grid-template-columns: minmax(0, 1fr) 290px; }
-.page-main { min-width: 0; padding: 31px clamp(24px, 4vw, 55px) 60px; }
+#page-home { display: grid; grid-template-columns: minmax(0, 1fr) 330px; }
+.page-main { min-width: 0; padding: 36px 40px 64px; }
 .feed-header, .simple-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 27px; }
 .feed-header h1, .simple-header h1 { margin: 0; font: 600 clamp(25px, 2.7vw, 36px) var(--font-display); letter-spacing: -1.1px; }
 .header-actions { display: flex; align-items: center; gap: 10px; }
@@ -230,7 +231,7 @@ kbd { padding: 3px 5px; color: #929893; background: #f0ede7; border: 1px solid #
 .mini-timeline-step div { display: grid; gap: 2px; }
 .mini-timeline-step strong { font-size: 9px; }
 .mini-timeline-step span { color: var(--muted); font-size: 8px; }
-.right-rail { padding: 31px 23px; background: var(--paper); border-left: 1px solid var(--line); }
+.right-rail { padding: 36px 28px; background: var(--paper); border-left: 0; }
 .rail-welcome { margin-bottom: 26px; padding: 18px 16px; text-align: center; background: #f5eee5; border-radius: 15px; }
 .rail-welcome > img { width: 47px; height: 47px; margin: 0 auto 9px; border: 3px solid white; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(60,50,40,.12); }
 .rail-welcome p { margin: 0 0 3px; font: 600 14px var(--font-display); }
@@ -257,7 +258,7 @@ kbd { padding: 3px 5px; color: #929893; background: #f0ede7; border: 1px solid #
 .mobile-header, .bottom-nav { display: none; }
 
 /* Discover */
-.wide-page { width: min(1180px, 100%); margin: auto; padding: 40px clamp(25px, 5vw, 70px) 70px; }
+.wide-page { width: 100%; max-width: none; margin: 0; padding: 36px 40px 70px; }
 .discover-hero { padding: 43px clamp(25px, 5vw, 70px); color: white; background: linear-gradient(100deg, rgba(33,50,40,.94), rgba(50,71,56,.74)), url("https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1500&q=85") center/cover; border-radius: 23px; }
 .discover-hero h1 { margin: 0 0 8px; font: 600 clamp(34px, 5vw, 57px) var(--font-display); letter-spacing: -2px; }
 .discover-hero > p:not(.eyebrow) { margin: 0 0 25px; color: rgba(255,255,255,.7); font-size: 12px; }
@@ -421,7 +422,7 @@ kbd { padding: 3px 5px; color: #929893; background: #f0ede7; border: 1px solid #
 .profile-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; }
 
 /* Settings */
-.settings-layout { display: grid; grid-template-columns: 205px minmax(0,1fr); align-items: start; gap: 24px; }
+.settings-layout { display: grid; grid-template-columns: 240px minmax(0,1fr); align-items: start; gap: 30px; }
 .settings-menu { position: sticky; top: 24px; display: grid; gap: 5px; padding: 9px; background: var(--paper); border: 1px solid var(--line); border-radius: 15px; }
 .settings-menu button { display: flex; align-items: center; gap: 9px; padding: 10px; color: var(--muted); text-align: left; background: transparent; border: 0; border-radius: 9px; font-size: 9px; font-weight: 700; cursor: pointer; }
 .settings-menu button:hover { color: var(--ink); background: #f5f1e9; }
@@ -639,9 +640,11 @@ kbd { padding: 3px 5px; color: #929893; background: #f0ede7; border: 1px solid #
 /* Readability */
 body { font-size: 15px; }
 .eyebrow { font-size: 12px; }
-.nav-item { font-size: 13px; }
-.sidebar-prompt p, .showcase-proof span { font-size: 11px; }
-.sidebar-prompt button, .sidebar-user strong, .sidebar-user span { font-size: 11px; }
+.nav-item { font-size: 14px; }
+.sidebar-prompt p { font-size: 12px; }
+.showcase-proof span { font-size: 11px; }
+.sidebar-prompt button, .sidebar-user strong { font-size: 12px; }
+.sidebar-user span { font-size: 11px; }
 .search-pill, .section-title button, .feed-tabs button { font-size: 11px; }
 .section-title h2 { font-size: 19px; }
 .story { font-size: 11px; }
