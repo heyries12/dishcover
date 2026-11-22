@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f3ea" />
+    <link rel="icon" type="image/svg+xml" href="assets/dishcover-mark.svg" />
+    <meta
+      name="description"
+      content="Dishcover is a social home for discovering dishes and sharing the stories behind them."
+    />
+    <link rel="preload" href="assets/dishcover-mark.svg" as="image" type="image/svg+xml" />
+    <title>Dishcover | Every dish has a story</title>
+    <script>
+      (() => {
+        const preference = localStorage.getItem("dishcoverTheme") || "system";
+        const dark = preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,600;9..144,700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dishcover.css" />
+  </head>
+
+  <body>
+    <svg class="svg-sprite" aria-hidden="true">
+      <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" /></symbol>
+      <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z" /></symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4.3A9 9 0 1 1 21 12Z" /></symbol>
+      <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" /></symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></symbol>
+      <symbol id="icon-comment" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4.3A9 9 0 1 1 21 12Z" /></symbol>
+      <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4V3Z" /></symbol>
+      <symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4" /></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+      <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></symbol>
+      <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M10 4H4v16h6M14 8l4 4-4 4M8 12h10" /></symbol>
+      <symbol id="icon-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 15-5-5L5 20" /></symbol>
+      <symbol id="icon-chef" viewBox="0 0 24 24"><path d="M7 11a4 4 0 1 1 2-7.5A4 4 0 0 1 16.5 5 3.5 3.5 0 1 1 17 12H7a4 4 0 0 1 0-8" /><path d="M7 12v8h10v-8M9 16h6" /></symbol>
+      <symbol id="icon-location" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></symbol>
+      <symbol id="icon-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></symbol>
+      <symbol id="icon-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></symbol>
+      <symbol id="icon-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 0-3H12a2 2 0 0 1 0-4h3a6 6 0 0 0 6-6c0-3-4-5-9-5Z" /><circle cx="7.5" cy="10" r=".8" /><circle cx="10" cy="6.8" r=".8" /><circle cx="14" cy="6.5" r=".8" /><circle cx="17" cy="9" r=".8" /></symbol>
+      <symbol id="icon-paperclip" viewBox="0 0 24 24"><path d="m20 12-8.5 8.5a5 5 0 0 1-7-7L14 4a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 1 1-3-3l8.5-8.5" /></symbol>
+      <symbol id="icon-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7Z" /><path d="M22 2 11 13" /></symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4a1.7 1.7 0 0 0 1-1.6v-.2h4v.2A1.7 1.7 0 0 0 15 4a1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" /></symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z" /><path d="m9 12 2 2 4-4" /></symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 15a8 8 0 0 1-11-11 9 9 0 1 0 11 11Z" /></symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="icon-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2" /><path d="M8 22h8M12 18v4" /></symbol>
+    </svg>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <main class="auth-view" id="authView">
+      <section class="auth-showcase" aria-label="Dishcover introduction">
+        <div class="showcase-shade"></div>
+        <a class="brand brand-light" href="#" aria-label="Dishcover home">
+          <span class="brand-mark"><span></span></span>
+          <span>dishcover</span>
+        </a>
+
+        <div class="showcase-copy">
+          <p class="eyebrow light">A table without borders</p>
+          <h1>Every dish holds<br />a <em>story.</em></h1>
+          <p class="showcase-lead">
+            Discover recipes worth gathering around, and share the flavor behind your own.
+          </p>
+          <div class="showcase-proof">
+            <div class="avatar-stack" aria-hidden="true">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="" />
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="" />
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="" />
+            </div>
+            <div><strong>12k+ food stories</strong><span>shared this month</span></div>
+          </div>
+        </div>
+
+        <div class="floating-dish-card">
+          <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&amp;fit=crop&amp;w=280&amp;q=85" alt="Creamy pasta dish" />
+          <div><span>Trending today</span><strong>Truffle Tagliatelle</strong></div>
+          <span class="trend-badge">+2.4k</span>
+        </div>
+      </section>
+
+      <section class="auth-panel">
+        <a class="brand auth-mobile-brand" href="#" aria-label="Dishcover home">
+          <span class="brand-mark"><span></span></span>
+          <span>dishcover</span>
+        </a>
+
+        <div class="auth-card">
+          <div class="auth-heading">
+            <p class="eyebrow">Welcome to the table</p>
+            <h2 id="authTitle">Sign in to Dishcover</h2>
+            <p id="authSubtitle">Your next favorite dish is waiting.</p>
+          </div>
+
+          <div class="auth-tabs" role="tablist" aria-label="Authentication options">
+            <button class="auth-tab active" type="button" role="tab" data-auth-mode="login" aria-selected="true">Sign in</button>
+            <button class="auth-tab" type="button" role="tab" data-auth-mode="signup" aria-selected="false">Create account</button>
+          </div>
+
+          <aside class="demo-card" id="demoCard">
+            <div class="demo-icon"><svg><use href="#icon-chef"></use></svg></div>
+            <div><strong>Explore with our test account</strong><span>demo@dishcover.app &nbsp;/&nbsp; Dishcover123!</span></div>
+            <button type="button" id="fillDemo">Use demo</button>
+          </aside>
+
+          <form id="authForm" novalidate>
+            <div class="signup-fields" id="signupFields" hidden>
+              <div class="field-row">
+                <label class="field"><span>Full name</span><input id="nameInput" name="name" autocomplete="name" placeholder="Your name" /></label>
+                <label class="field"><span>Username</span><input id="usernameInput" name="username" autocomplete="username" placeholder="@foodlover" /></label>
+              </div>
+              <fieldset class="account-types">
+                <legend>I am joining as</legend>
+                <label><input type="radio" name="accountType" value="individual" checked /><span><svg><use href="#icon-user"></use></svg><b>Food lover</b></span></label>
+                <label><input type="radio" name="accountType" value="restaurant" /><span><svg><use href="#icon-chef"></use></svg><b>Food business</b></span></label>
+              </fieldset>
+            </div>
+
+            <label class="field">
+              <span>Email address</span>
+              <input type="email" id="emailInput" name="email" autocomplete="email" placeholder="you@example.com" required />
+            </label>
+
+            <label class="field">
+              <span>Password</span>
+              <span class="password-wrap">
+                <input type="password" id="passwordInput" name="password" autocomplete="current-password" placeholder="Enter your password" minlength="8" required />
+                <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password"><svg><use href="#icon-eye"></use></svg></button>
+              </span>
+            </label>
+
+            <div class="form-options">
+              <label class="check-label"><input type="checkbox" id="rememberInput" checked /><span></span>Remember me</label>
+              <button type="button" class="text-button" id="forgotPassword">Forgot password?</button>
+            </div>
+
+            <p class="form-error" id="formError" role="alert"></p>
+            <button class="primary-button" id="authSubmit" type="submit">
+              <span>Enter Dishcover</span><svg><use href="#icon-arrow"></use></svg>
+            </button>
+          </form>
+
+          <div class="divider"><span>or continue with</span></div>
+          <div class="social-buttons">
+            <button type="button" class="social-button" data-provider="Google"><b>G</b> Google</button>
+            <button type="button" class="social-button apple" data-provider="Apple"><b>●</b> Apple</button>
+          </div>
+          <p class="auth-terms">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+        </div>
+      </section>
+    </main>
+
+    <main class="app-view" id="appView" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="Dishcover home">
+          <span class="brand-mark"><span></span></span>
+          <span>dishcover</span>
+        </a>
+
+        <nav class="side-nav" aria-label="Main navigation">
+          <button class="nav-item active" type="button" data-page="home"><svg><use href="#icon-home"></use></svg><span>Home</span></button>
+          <button class="nav-item" type="button" data-page="discover"><svg><use href="#icon-compass"></use></svg><span>Discover</span></button>
+          <button class="nav-item" type="button" data-open-upload><svg><use href="#icon-plus"></use></svg><span>Create dish</span></button>
+          <button class="nav-item" type="button" data-page="messages"><svg><use href="#icon-message"></use></svg><span>Messages</span><i>3</i></button>
+          <button class="nav-item" type="button" data-page="profile"><svg><use href="#icon-user"></use></svg><span>My kitchen</span></button>
+          <button class="nav-item" type="button" data-page="settings"><svg><use href="#icon-settings"></use></svg><span>Settings</span></button>
+        </nav>
+
+        <div class="sidebar-prompt">
+          <span><svg><use href="#icon-chef"></use></svg></span>
+          <strong>What are you cooking?</strong>
+          <p>Share the story behind your latest dish.</p>
+          <button type="button" data-open-upload>Share a dish</button>
+        </div>
+
+        <div class="sidebar-user">
+          <img data-current-avatar src="" alt="Your profile" />
+          <div><strong data-current-name></strong><span data-current-username></span></div>
+          <button type="button" id="logoutButton" aria-label="Sign out"><svg><use href="#icon-logout"></use></svg></button>
+        </div>
+      </aside>
+
+      <section class="app-content">
+        <header class="mobile-header">
+          <a class="brand" href="#"><span class="brand-mark"><span></span></span><span>dishcover</span></a>
+          <button type="button" class="icon-button notification-button" data-notifications aria-label="Notifications"><svg><use href="#icon-bell"></use></svg><i></i></button>
+        </header>
+
+        <section class="page active" id="page-home">
+          <div class="page-main home-main">
+            <header class="feed-header">
+              <div><p class="eyebrow" id="greeting">Good morning</p><h1>What's cooking today?</h1></div>
+              <div class="header-actions">
+                <button type="button" class="search-pill" data-page="discover"><svg><use href="#icon-search"></use></svg><span>Search dishes, cooks...</span><kbd>⌘ K</kbd></button>
+                <button type="button" class="icon-button notification-button" data-notifications aria-label="Notifications"><svg><use href="#icon-bell"></use></svg><i></i></button>
+              </div>
+            </header>
+
+            <section class="story-section" aria-labelledby="storyHeading">
+              <div class="section-title"><h2 id="storyHeading">From your table</h2><button type="button" data-page="discover">See all <svg><use href="#icon-arrow"></use></svg></button></div>
+              <div class="stories" id="stories"></div>
+            </section>
+
+            <div class="feed-tabs">
+              <button class="active" type="button" data-feed="foryou">For you</button>
+              <button type="button" data-feed="following">Following</button>
+              <button type="button" data-feed="nearby">Near you</button>
+            </div>
+            <section class="post-feed" id="postFeed" aria-label="Dish feed"></section>
+          </div>
+
+          <aside class="right-rail">
+            <div class="rail-welcome">
+              <img data-current-avatar src="" alt="Your profile" />
+              <p>Welcome back, <strong data-current-first-name></strong></p>
+              <span>Ready to find something delicious?</span>
+              <div class="mini-stats"><span><b>24</b> Dishes</span><span><b>1.8k</b> Followers</span><span><b>68</b> Saved</span></div>
+            </div>
+            <section class="rail-section">
+              <div class="section-title"><h2>Trending now</h2><button type="button" data-page="discover">Explore</button></div>
+              <div class="trending-list" id="trendingList"></div>
+            </section>
+            <section class="rail-section">
+              <div class="section-title"><h2>Cooks to follow</h2><button type="button">See all</button></div>
+              <div class="creator-list" id="creatorList"></div>
+            </section>
+            <p class="rail-footer">About · Community · Privacy · Terms<br />© 2026 Dishcover</p>
+          </aside>
+        </section>
+
+        <section class="page" id="page-discover" hidden>
+          <div class="wide-page">
+            <header class="discover-hero">
+              <p class="eyebrow">Taste the world</p>
+              <h1>What are you craving?</h1>
+              <p>Find a new favorite from thousands of dishes and food stories.</p>
+              <label class="discover-search"><svg><use href="#icon-search"></use></svg><input type="search" id="discoverSearch" placeholder="Search dishes, ingredients, or creators" /><kbd>⌘ K</kbd></label>
+            </header>
+            <div class="cuisine-filters" id="cuisineFilters"></div>
+            <div class="subcategory-filters" id="subcategoryFilters" aria-label="Dish categories"></div>
+            <section class="profile-search-section" id="profileSearchSection" hidden>
+              <div class="discover-heading"><div><p class="eyebrow">People and kitchens</p><h2>Profiles</h2></div><span id="profileResultCount"></span></div>
+              <div class="profile-search-results" id="profileSearchResults"></div>
+            </section>
+            <div class="discover-heading"><div><p class="eyebrow" id="dishResultEyebrow">Handpicked for you</p><h2 id="dishResultTitle">Popular this week</h2></div><span id="resultCount"></span></div>
+            <section class="dish-grid" id="dishGrid" aria-label="Discover dishes"></section>
+          </div>
+        </section>
+
+        <section class="page" id="page-messages" hidden>
+          <div class="wide-page messages-page">
+            <header class="simple-header"><div><p class="eyebrow">Your conversations</p><h1>Messages</h1></div><button class="outline-button" id="newMessageButton" type="button">New message</button></header>
+            <div class="messages-shell">
+              <aside class="chat-list" id="chatList"></aside>
+              <section class="conversation" id="conversation"></section>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-profile" hidden>
+          <div class="wide-page profile-page">
+            <div class="profile-cover" id="profileCover"></div>
+            <section class="profile-summary">
+              <img data-current-avatar src="" alt="Your profile" />
+              <div class="profile-info">
+                <div><h1 data-current-name></h1><span data-current-username></span></div>
+                <p id="profileBio"></p>
+                <div class="profile-meta">
+                  <span class="profile-location"><svg><use href="#icon-location"></use></svg><span id="profileLocation"></span></span>
+                  <span id="profileAge"></span>
+                  <a id="profileWebsite" href="#" target="_blank" rel="noreferrer"></a>
+                </div>
+              </div>
+              <div class="profile-action-buttons"><button type="button" class="outline-button" data-edit-profile>Edit profile</button><button type="button" class="outline-button" data-page="settings">Settings</button></div>
+            </section>
+            <div class="profile-stats"><span><b>24</b>Dishes</span><span><b>1.8k</b>Followers</span><span><b>342</b>Following</span><span><b>68</b>Saved</span></div>
+            <div class="profile-tabs"><button class="active" type="button"><svg><use href="#icon-grid"></use></svg>My dishes</button><button type="button"><svg><use href="#icon-bookmark"></use></svg>Saved</button></div>
+            <section class="profile-grid" id="profileGrid"></section>
+          </div>
+        </section>
+
+        <section class="page" id="page-settings" hidden>
+          <div class="wide-page settings-page">
+            <header class="simple-header"><div><p class="eyebrow">Control your experience</p><h1>Settings &amp; privacy</h1></div></header>
+            <div class="settings-layout">
+              <nav class="settings-menu" aria-label="Settings sections">
+                <button class="active" type="button" data-settings-target="settingsAccount"><svg><use href="#icon-user"></use></svg><span>Account center</span></button>
+                <button type="button" data-settings-target="settingsSecurity"><svg><use href="#icon-lock"></use></svg><span>Password &amp; security</span></button>
+                <button type="button" data-settings-target="settingsPrivacy"><svg><use href="#icon-shield"></use></svg><span>Privacy</span></button>
+                <button type="button" data-settings-target="settingsAppearance"><svg><use href="#icon-moon"></use></svg><span>Appearance</span></button>
+                <button type="button" data-settings-target="settingsNotifications"><svg><use href="#icon-bell"></use></svg><span>Notifications</span></button>
+              </nav>
+
+              <div class="settings-content">
+                <section class="settings-card account-center-card" id="settingsAccount">
+                  <header><span><svg><use href="#icon-user"></use></svg></span><div><h2>Account center</h2><p>Manage the details people use to find you.</p></div></header>
+                  <div class="settings-account-person"><img data-current-avatar src="" alt="Your profile" /><div><strong data-current-name></strong><span data-current-username></span></div><small id="settingsAccountType"></small></div>
+                  <form id="accountSettingsForm">
+                    <div class="field-row"><label class="field"><span>Display name</span><input id="settingsName" maxlength="50" required /></label><label class="field"><span>Username</span><span class="username-input"><b>@</b><input id="settingsUsername" maxlength="30" required /></span></label></div>
+                    <label class="field"><span>Email address</span><input type="email" id="settingsEmail" autocomplete="email" required /></label>
+                    <p class="settings-form-error" id="accountSettingsError" role="alert"></p>
+                    <div class="settings-form-actions"><button class="primary-button compact" type="submit"><span>Save account details</span><svg><use href="#icon-check"></use></svg></button></div>
+                  </form>
+                </section>
+
+                <section class="settings-card" id="settingsSecurity">
+                  <header><span><svg><use href="#icon-lock"></use></svg></span><div><h2>Password &amp; security</h2><p>Use a strong password you do not use elsewhere.</p></div></header>
+                  <form id="passwordSettingsForm">
+                    <label class="field"><span>Current password</span><input type="password" id="currentPassword" autocomplete="current-password" required /></label>
+                    <div class="field-row"><label class="field"><span>New password</span><input type="password" id="newPassword" minlength="8" autocomplete="new-password" required /></label><label class="field"><span>Confirm new password</span><input type="password" id="confirmPassword" minlength="8" autocomplete="new-password" required /></label></div>
+                    <p class="settings-form-error" id="passwordSettingsError" role="alert"></p>
+                    <div class="settings-form-actions"><button class="primary-button compact" type="submit"><span>Update password</span><svg><use href="#icon-lock"></use></svg></button></div>
+                  </form>
+                </section>
+
+                <section class="settings-card" id="settingsPrivacy">
+                  <header><span><svg><use href="#icon-shield"></use></svg></span><div><h2>Privacy</h2><p>Choose who can see your food profile and dishes.</p></div></header>
+                  <div class="setting-toggle-row"><div><strong>Private profile</strong><span>Only followers you approve can see your full profile and posts.</span></div><label class="toggle-switch"><input type="checkbox" id="settingsPrivateProfile" /><span></span></label></div>
+                </section>
+
+                <section class="settings-card" id="settingsAppearance">
+                  <header><span><svg><use href="#icon-moon"></use></svg></span><div><h2>Appearance</h2><p>Choose how Dishcover looks on this device.</p></div></header>
+                  <div class="theme-options-settings" role="radiogroup" aria-label="Color theme">
+                    <button type="button" data-theme-choice-setting="light"><span class="theme-preview light"></span><svg><use href="#icon-sun"></use></svg><strong>Light</strong><small>Always use light colors</small></button>
+                    <button type="button" data-theme-choice-setting="dark"><span class="theme-preview dark"></span><svg><use href="#icon-moon"></use></svg><strong>Dark</strong><small>Reduce brightness and glare</small></button>
+                    <button type="button" data-theme-choice-setting="system"><span class="theme-preview system"></span><svg><use href="#icon-monitor"></use></svg><strong>System</strong><small>Match your device setting</small></button>
+                  </div>
+                </section>
+
+                <section class="settings-card" id="settingsNotifications">
+                  <header><span><svg><use href="#icon-bell"></use></svg></span><div><h2>Notifications</h2><p>Decide which activity updates you want to receive.</p></div></header>
+                  <div class="settings-toggle-list">
+                    <div class="setting-toggle-row"><div><strong>Reactions and comments</strong><span>Activity on your posts and stories.</span></div><label class="toggle-switch"><input type="checkbox" data-notification-setting="social" /><span></span></label></div>
+                    <div class="setting-toggle-row"><div><strong>New followers</strong><span>Someone starts following your kitchen.</span></div><label class="toggle-switch"><input type="checkbox" data-notification-setting="followers" /><span></span></label></div>
+                    <div class="setting-toggle-row"><div><strong>Messages</strong><span>New private messages and replies.</span></div><label class="toggle-switch"><input type="checkbox" data-notification-setting="messages" /><span></span></label></div>
+                  </div>
+                </section>
+
+                <section class="settings-card danger-settings-card">
+                  <div><h2>Log out of Dishcover</h2><p>You can sign back in at any time with your email and password.</p></div><button type="button" id="settingsLogout">Log out</button>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <nav class="bottom-nav" aria-label="Mobile navigation">
+        <button class="active" type="button" data-page="home"><svg><use href="#icon-home"></use></svg><span>Home</span></button>
+        <button type="button" data-page="discover"><svg><use href="#icon-compass"></use></svg><span>Discover</span></button>
+        <button class="create-button" type="button" data-open-upload aria-label="Create dish"><svg><use href="#icon-plus"></use></svg></button>
+        <button type="button" data-page="messages"><svg><use href="#icon-message"></use></svg><span>Messages</span></button>
+        <button type="button" data-page="profile"><svg><use href="#icon-user"></use></svg><span>Profile</span></button>
+      </nav>
+    </main>
+
+    <div class="modal-backdrop" id="uploadModal" hidden>
+      <section class="modal upload-modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+        <header><div><p class="eyebrow">From your kitchen</p><h2 id="uploadTitle">Share a new dish</h2></div><button type="button" class="icon-button" data-close-modal aria-label="Close"><svg><use href="#icon-x"></use></svg></button></header>
+        <form id="uploadForm">
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="dishImage" accept="image/png,image/jpeg,image/webp" multiple hidden />
+            <button class="upload-placeholder" id="chooseDishImages" type="button">
+              <span><svg><use href="#icon-image"></use></svg></span>
+              <strong>Add up to 5 food photos</strong>
+              <small>Show the finished dish, ingredients, and cooking process</small>
+            </button>
+            <div class="upload-preview-grid" id="imagePreviewGrid" hidden></div>
+            <div class="upload-media-toolbar" id="uploadMediaToolbar" hidden><span id="photoCount">0 of 5 photos</span><button type="button" id="addMorePhotos"><svg><use href="#icon-plus"></use></svg>Add photos</button></div>
+          </div>
+          <div class="field-row">
+            <label class="field"><span>Dish name</span><input id="dishName" required placeholder="e.g. Lola's Chicken Adobo" /></label>
+            <label class="field"><span>Cuisine</span><select id="dishCuisine"><option>Filipino</option><option>Italian</option><option>Japanese</option><option>Chinese</option><option>Western</option><option>Dessert</option></select></label>
+          </div>
+          <div class="dish-category-field">
+            <div><strong>Dish category</strong><span id="categoryHelp">Choose what kind of Filipino dish this is.</span></div>
+            <div class="dish-category-options" id="dishCategoryOptions"></div>
+            <input type="hidden" id="dishCategory" />
+          </div>
+          <label class="field"><span>Story behind the dish</span><textarea id="dishCaption" rows="3" required placeholder="What makes this dish special?"></textarea></label>
+          <div class="field-row">
+            <label class="field"><span>Cooking time</span><input id="dishTime" placeholder="45 min" /></label>
+            <label class="field"><span>Main ingredients</span><input id="dishIngredients" placeholder="Chicken, soy sauce, garlic" /></label>
+          </div>
+          <section class="timeline-editor" aria-labelledby="timelineTitle">
+            <header><div><strong id="timelineTitle">Ingredient timeline</strong><span>Explain exactly what happens and when ingredients are added.</span></div><button type="button" id="addTimelineStep"><svg><use href="#icon-plus"></use></svg>Add step</button></header>
+            <div class="timeline-steps" id="timelineSteps"></div>
+          </section>
+          <p class="editor-error upload-error" id="uploadError" role="alert"></p>
+          <div class="modal-actions"><button type="button" class="outline-button" data-close-modal>Cancel</button><button class="primary-button compact" type="submit"><span>Share dish</span><svg><use href="#icon-arrow"></use></svg></button></div>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="createStoryModal" hidden>
+      <section class="modal create-story-modal" role="dialog" aria-modal="true" aria-labelledby="createStoryTitle">
+        <header><div><p class="eyebrow">Share a moment</p><h2 id="createStoryTitle">Create a story</h2></div><button type="button" class="icon-button" data-close-story-create aria-label="Close"><svg><use href="#icon-x"></use></svg></button></header>
+        <form id="createStoryForm">
+          <input type="file" id="storyImageInput" accept="image/png,image/jpeg,image/webp" hidden />
+          <button class="story-media-picker" id="chooseStoryImage" type="button">
+            <span><svg><use href="#icon-image"></use></svg></span>
+            <strong>Add a vertical photo</strong>
+            <small>Stories stay visible for 24 hours</small>
+            <img id="storyImagePreview" alt="Story preview" hidden />
+          </button>
+          <label class="field story-caption-field"><span>Caption</span><textarea id="storyCaption" maxlength="300" rows="3" placeholder="What is happening in your kitchen?"></textarea><small><span id="storyCaptionCount">0</span>/300</small></label>
+          <p class="editor-error" id="storyCreateError" role="alert"></p>
+          <div class="modal-actions"><button type="button" class="outline-button" data-close-story-create>Cancel</button><button class="primary-button compact" id="shareStoryButton" type="submit"><span>Share story</span><svg><use href="#icon-arrow"></use></svg></button></div>
+        </form>
+      </section>
+    </div>
+
+    <div class="story-viewer-backdrop" id="storyViewer" hidden>
+      <section class="story-viewer-shell" role="dialog" aria-modal="true" aria-label="Story viewer">
+        <div class="story-stage">
+          <div class="story-progress" id="storyProgress"></div>
+          <header class="story-viewer-header">
+            <div><img id="storyCreatorAvatar" src="" alt="" /><span><strong id="storyCreatorName"></strong><small id="storyCreatedAt"></small></span></div>
+            <button type="button" data-close-story-viewer aria-label="Close story"><svg><use href="#icon-x"></use></svg></button>
+          </header>
+          <img class="story-media" id="storyViewerMedia" src="" alt="" />
+          <p class="story-viewer-caption" id="storyViewerCaption"></p>
+          <button class="story-navigation previous" type="button" id="previousStory" aria-label="Previous story"><svg><use href="#icon-arrow"></use></svg></button>
+          <button class="story-navigation next" type="button" id="nextStory" aria-label="Next story"><svg><use href="#icon-arrow"></use></svg></button>
+        </div>
+        <aside class="story-discussion">
+          <header><div><p class="eyebrow">At the table</p><h2>Story comments</h2></div><button type="button" data-close-story-viewer aria-label="Close"><svg><use href="#icon-x"></use></svg></button></header>
+          <div class="story-reactions" id="storyReactions" aria-label="React to this story"></div>
+          <div class="story-comments" id="storyComments"></div>
+          <form class="story-comment-form" id="storyCommentForm"><img data-current-avatar src="" alt="Your profile" /><input id="storyCommentInput" maxlength="300" autocomplete="off" placeholder="Write a comment..." /><button type="submit" aria-label="Post comment"><svg><use href="#icon-send"></use></svg></button></form>
+        </aside>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="publicProfileModal" hidden>
+      <section class="modal public-profile-modal" role="dialog" aria-modal="true" aria-labelledby="publicProfileName">
+        <header><div><p class="eyebrow">Dishcover profile</p><h2 id="publicProfileName"></h2></div><button type="button" class="icon-button" data-close-public-profile aria-label="Close"><svg><use href="#icon-x"></use></svg></button></header>
+        <div class="public-profile-summary">
+          <img id="publicProfileAvatar" src="" alt="" />
+          <div><strong id="publicProfileUsername"></strong><p id="publicProfileBio"></p><span id="publicProfileLocation"></span></div>
+          <button type="button" class="follow-profile-button" id="publicProfileFollow">Follow</button>
+        </div>
+        <div class="public-profile-stats"><span><b id="publicProfileDishCount">0</b>Dishes</span><span><b>1.2k</b>Followers</span><span><b>186</b>Following</span></div>
+        <div class="public-profile-dishes" id="publicProfileDishes"></div>
+      </section>
+    </div>
+
+    <div class="message-media-viewer" id="messageMediaViewer" hidden>
+      <button type="button" data-close-message-media aria-label="Close photo"><svg><use href="#icon-x"></use></svg></button>
+      <img id="messageMediaViewerImage" src="" alt="Message attachment" />
+    </div>
+
+    <div class="modal-backdrop" id="editProfileModal" hidden>
+      <section class="modal profile-editor" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
+        <header>
+          <div><p class="eyebrow">Your food identity</p><h2 id="editProfileTitle">Edit profile</h2></div>
+          <button type="button" class="icon-button" data-close-profile-editor aria-label="Close"><svg><use href="#icon-x"></use></svg></button>
+        </header>
+
+        <form id="editProfileForm">
+          <div class="cover-editor" id="coverEditor">
+            <img id="coverPreview" src="" alt="Cover preview" />
+            <label class="media-edit-button">
+              <input type="file" id="coverImageInput" accept="image/png,image/jpeg,image/webp" />
+              <svg><use href="#icon-image"></use></svg> Change cover
+            </label>
+          </div>
+
+          <div class="avatar-editor">
+            <img id="avatarPreview" src="" alt="Profile photo preview" />
+            <div><strong>Profile photo</strong><span>JPG, PNG or WEBP. Up to 10 MB.</span></div>
+            <label class="photo-change-button">
+              <input type="file" id="avatarImageInput" accept="image/png,image/jpeg,image/webp" />
+              Change photo
+            </label>
+          </div>
+
+          <div class="editor-section">
+            <div class="editor-section-heading"><strong>Public profile</strong><span>This information appears on your Dishcover profile.</span></div>
+            <div class="field-row">
+              <label class="field"><span>Display name</span><input id="editName" autocomplete="name" maxlength="50" required /></label>
+              <label class="field"><span>Username</span><span class="username-input"><b>@</b><input id="editUsername" autocomplete="username" maxlength="30" required /></span><small>Letters, numbers, periods, and underscores only.</small></label>
+            </div>
+            <label class="field bio-field"><span>Bio</span><textarea id="editBio" rows="4" maxlength="150" placeholder="Tell people about you and your food..."></textarea><small><span id="bioCount">0</span>/150</small></label>
+            <div class="field-row">
+              <label class="field"><span>Age</span><input type="number" id="editAge" min="13" max="120" inputmode="numeric" placeholder="e.g. 27" /></label>
+              <label class="field"><span>Location</span><input id="editLocation" maxlength="70" placeholder="City, country" /></label>
+            </div>
+            <label class="field"><span>Website</span><input type="url" id="editWebsite" inputmode="url" placeholder="https://yourwebsite.com" /></label>
+          </div>
+
+          <div class="editor-section privacy-editor">
+            <div><strong>Private profile</strong><span>Only approved followers can see your dishes.</span></div>
+            <label class="toggle-switch"><input type="checkbox" id="editPrivate" /><span></span></label>
+          </div>
+
+          <p class="editor-error" id="profileEditorError" role="alert"></p>
+          <div class="modal-actions profile-editor-actions">
+            <button type="button" class="outline-button" data-close-profile-editor>Cancel</button>
+            <button class="primary-button compact" id="saveProfileButton" type="submit"><span>Save changes</span><svg><use href="#icon-check"></use></svg></button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="drawer-backdrop" id="notificationBackdrop" hidden></div>
+    <aside class="notification-drawer" id="notificationDrawer" aria-label="Notifications" aria-hidden="true">
+      <header><div><p class="eyebrow">Stay connected</p><h2>Notifications</h2></div><button class="icon-button" type="button" data-close-notifications aria-label="Close"><svg><use href="#icon-x"></use></svg></button></header>
+      <div class="notification-list" id="notificationList"></div>
+    </aside>
+
+    <script src="dishcover.js"></script>
+  </body>
+</html>

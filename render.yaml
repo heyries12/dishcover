@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: dishcover
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__Dishcover
+        value: Data Source=/tmp/dishcover.db
+      - key: DATA_PROTECTION_KEYS_PATH
+        value: /tmp/dishcover-keys
