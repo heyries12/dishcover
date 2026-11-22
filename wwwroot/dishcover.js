@@ -61,6 +61,7 @@ let storyTimer;
 let searchResults = null;
 let searchTimer;
 let searchRequest;
+let socialProviders = { google: false, apple: false };
 
 const $ = (selector, context = document) => context.querySelector(selector);
 const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
@@ -71,6 +72,7 @@ document.addEventListener("DOMContentLoaded", initialize);
 async function initialize() {
   bindEvents();
   try {
+    await loadSocialProviders();
     currentUser = await api("/api/auth/session");
     if (currentUser) await showApp();
   } catch (error) {
@@ -79,6 +81,9 @@ async function initialize() {
       showFormError("The Dishcover server is unavailable. Please try again.");
     }
   }
+  const parameters = new URLSearchParams(location.search);
+  if (parameters.get("socialError")) showFormError(parameters.get("socialError"));
+  if (parameters.has("social") || parameters.has("socialError")) history.replaceState({}, "", "/");
 }
 
 async function api(path, options = {}) {
@@ -86,7 +91,7 @@ async function api(path, options = {}) {
   if (options.body && !(options.body instanceof FormData)) headers["Content-Type"] = "application/json";
   const response = await fetch(path, { credentials: "same-origin", ...options, headers });
   const contentType = response.headers.get("content-type") || "";
-  const payload = response.status === 204 ? null : contentType.includes("application/json") ? await response.json() : null;
+  const payload = response.status === 204 ? null : contentType.includes("json") ? await response.json() : null;
   if (!response.ok) {
     const error = new Error(payload?.detail || payload?.title || "The request could not be completed.");
     error.status = response.status;
@@ -100,13 +105,40 @@ async function loadAppData() {
   activeConversationId = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt)[0]?.id;
 }
 
+async function loadSocialProviders() {
+  try {
+    socialProviders = await api("/api/auth/providers");
+  } catch {
+    socialProviders = { google: false, apple: false };
+  }
+  $$("[data-provider]").forEach((button) => {
+    const available = Boolean(socialProviders[button.dataset.provider.toLowerCase()]);
+    button.classList.toggle("unavailable", !available);
+    button.setAttribute("aria-disabled", String(!available));
+    button.title = available ? `Continue with ${button.dataset.provider}` : `${button.dataset.provider} sign-in requires provider configuration`;
+  });
+  const anyAvailable = socialProviders.google || socialProviders.apple;
+  $("#socialStatus").hidden = anyAvailable;
+  $("#socialStatus").textContent = anyAvailable ? "" : "Google and Apple sign-in are awaiting provider credentials.";
+}
+
+function startSocialLogin(provider) {
+  if (!socialProviders[provider.toLowerCase()]) {
+    showToast(`${provider} sign-in is not configured yet.`);
+    return;
+  }
+  window.location.assign(`/api/auth/external/${provider.toLowerCase()}`);
+}
+
 function bindEvents() {
   $$("[data-auth-mode]").forEach((button) => button.addEventListener("click", () => setAuthMode(button.dataset.authMode)));
   $("#fillDemo").addEventListener("click", fillDemoAccount);
   $("#passwordToggle").addEventListener("click", togglePassword);
+  $("#passwordInput").addEventListener("input", updatePasswordRequirements);
+  $("#usernameInput").addEventListener("input", () => showFormError(""));
   $("#authForm").addEventListener("submit", handleAuth);
   $("#forgotPassword").addEventListener("click", () => showToast("Password reset is coming in the connected backend."));
-  $$("[data-provider]").forEach((button) => button.addEventListener("click", () => showToast(`${button.dataset.provider} sign-in is not connected in this prototype.`)));
+  $$("[data-provider]").forEach((button) => button.addEventListener("click", () => startSocialLogin(button.dataset.provider)));
   $("#logoutButton").addEventListener("click", logout);
   $$("[data-page]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.page)));
   $$("[data-open-upload]").forEach((button) => button.addEventListener("click", openUploadModal));
@@ -187,10 +219,12 @@ function setAuthMode(mode) {
   $("#nameInput").required = signup;
   $("#usernameInput").required = signup;
   $("#passwordInput").autocomplete = signup ? "new-password" : "current-password";
+  $("#passwordRequirements").hidden = !signup;
   $("#authTitle").textContent = signup ? "Create your food profile" : "Sign in to Dishcover";
   $("#authSubtitle").textContent = signup ? "Bring your recipes, stories, and appetite." : "Your next favorite dish is waiting.";
   $("#authSubmit span").textContent = signup ? "Create my account" : "Enter Dishcover";
   $("#forgotPassword").hidden = signup;
+  updatePasswordRequirements();
   showFormError("");
 }
 
@@ -208,6 +242,24 @@ function togglePassword() {
   $("#passwordToggle").setAttribute("aria-label", input.type === "password" ? "Show password" : "Hide password");
 }
 
+function getPasswordRules(password) {
+  return {
+    length: password.length >= 8,
+    lower: /[a-z]/.test(password),
+    upper: /[A-Z]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password)
+  };
+}
+
+function isStrongPassword(password) {
+  return Object.values(getPasswordRules(password)).every(Boolean);
+}
+
+function updatePasswordRequirements() {
+  const rules = getPasswordRules($("#passwordInput").value);
+  $$("[data-password-rule]").forEach((item) => item.classList.toggle("valid", rules[item.dataset.passwordRule]));
+}
+
 async function handleAuth(event) {
   event.preventDefault();
   const submit = $("#authSubmit");
@@ -216,7 +268,14 @@ async function handleAuth(event) {
   showFormError("");
 
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) return showFormError("Enter a valid email address.");
-  if (password.length < 8) return showFormError("Your password must contain at least 8 characters.");
+  if (authMode === "signup") {
+    const username = $("#usernameInput").value.trim().replace(/^@/, "");
+    if (username.includes("@")) return showFormError("Enter a username, not an email address. Example: foodlover");
+    if (!/^[A-Za-z0-9._]{2,30}$/.test(username)) return showFormError("Username must contain 2-30 letters, numbers, periods, or underscores.");
+    if (!isStrongPassword(password)) return showFormError("Password must have at least 8 characters, uppercase and lowercase letters, and a special character.");
+  } else if (password.length < 8) {
+    return showFormError("Your password must contain at least 8 characters.");
+  }
 
   submit.disabled = true;
   submit.querySelector("span").textContent = authMode === "signup" ? "Creating account..." : "Opening your table...";
@@ -242,7 +301,8 @@ async function signIn(email, password) {
 async function createAccount(email, password) {
   const name = $("#nameInput").value.trim();
   const rawUsername = $("#usernameInput").value.trim().replace(/^@/, "");
-  if (name.length < 2 || rawUsername.length < 2) throw new Error("Add your name and a username to continue.");
+  if (name.length < 2) throw new Error("Enter your full name to continue.");
+  if (!/^[A-Za-z0-9._]{2,30}$/.test(rawUsername)) throw new Error("Username must contain 2-30 letters, numbers, periods, or underscores.");
   currentUser = await api("/api/auth/register", {
     method: "POST",
     body: JSON.stringify({
@@ -366,7 +426,7 @@ async function changeAccountPassword(event) {
   const confirmation = $("#confirmPassword").value;
   error.textContent = "";
   if (newPassword !== confirmation) return error.textContent = "The new passwords do not match.";
-  if (newPassword.length < 8) return error.textContent = "Your new password must contain at least 8 characters.";
+  if (!isStrongPassword(newPassword)) return error.textContent = "Your new password needs at least 8 characters, uppercase and lowercase letters, and a special character.";
   button.disabled = true;
   try {
     await api("/api/account/password", {

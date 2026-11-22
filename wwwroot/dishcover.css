@@ -82,6 +82,14 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .password-wrap input { padding-right: 45px; }
 .password-toggle { position: absolute; top: 50%; right: 7px; display: grid; width: 34px; height: 34px; padding: 0; color: #89918c; background: none; border: 0; transform: translateY(-50%); cursor: pointer; place-items: center; }
 .password-toggle svg { width: 18px; }
+.password-requirements { margin: -5px 0 14px; padding: 11px 12px; background: #f7f3ec; border: 1px solid var(--line); border-radius: 10px; }
+.password-requirements > span { color: var(--ink); font-size: 11px; font-weight: 700; }
+.password-requirements ul { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 8px 0 0; padding: 0; list-style: none; }
+.password-requirements li { position: relative; padding-left: 17px; color: #8b938d; font-size: 10px; }
+.password-requirements li::before { content: ""; position: absolute; top: 1px; left: 0; width: 10px; height: 10px; border: 1px solid #c5c9c5; border-radius: 50%; }
+.password-requirements li.valid { color: #5b765d; }
+.password-requirements li.valid::before { background: #6d926f; border-color: #6d926f; }
+.password-requirements li.valid::after { content: ""; position: absolute; top: 3px; left: 3px; width: 4px; height: 2px; border: solid white; border-width: 0 0 1px 1px; transform: rotate(-45deg); }
 .account-types { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 0 0 14px; padding: 0; border: 0; }
 .account-types legend { margin-bottom: 7px; color: #3d4841; font-size: 11px; font-weight: 700; }
 .account-types label { cursor: pointer; }
@@ -109,6 +117,8 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .social-button { padding: 10px; background: white; border: 1px solid #dedad3; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
 .social-button b { margin-right: 6px; color: #4285f4; font-size: 14px; }
 .social-button.apple b { color: #111; }
+.social-button.unavailable { opacity: .62; }
+.social-status { margin: 10px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .auth-terms { margin: 15px 0 0; color: #919690; font-size: 9px; text-align: center; }
 .auth-terms a { color: #626b65; }
 
@@ -741,6 +751,7 @@ html[data-theme="dark"] .default-emoji-options button { color: var(--ink); backg
 html[data-theme="dark"] .field input::placeholder,
 html[data-theme="dark"] .field textarea::placeholder,
 html[data-theme="dark"] input::placeholder { color: #758078; }
+html[data-theme="dark"] .password-requirements { background: #202821; }
 html[data-theme="dark"] .nav-item:hover,
 html[data-theme="dark"] .conversation-icon-button:hover,
 html[data-theme="dark"] .compose-icon:hover,
@@ -838,6 +849,7 @@ html[data-theme="dark"] .brand:not(.brand-light) { color: var(--ink); }
   .demo-card { grid-template-columns: auto 1fr; }
   .demo-card button { grid-column: 1 / -1; }
   .field-row { grid-template-columns: 1fr; gap: 0; }
+  .password-requirements ul { grid-template-columns: 1fr; }
   .feed-header h1 { font-size: 27px; }
   .stories { gap: 12px; margin-right: -18px; }
   .post-title-row { align-items: flex-start; }

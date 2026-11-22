@@ -1,11 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using AspNet.Security.OAuth.Apple;
 using Dishcover.Api.Data;
 using Dishcover.Api.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +16,7 @@ namespace Dishcover.Api;
 
 public static class ApiEndpoints
 {
+    public const string ExternalCookieScheme = "Dishcover.External";
     private static readonly HashSet<string> Themes = ["sage", "tomato", "ocean", "plum", "sunset"];
     private static readonly HashSet<string> Reactions = ["❤️", "😋", "😂", "👏", "🔥", "👍"];
     private static readonly HashSet<string> ConversationEmojis = ["❤️", "👍", "🔥", "😋", "😂", "👏", "😍", "🥰", "🍕", "🍝", "🍜", "🍰", "🥑", "🌮", "☕", "🎉"];
@@ -27,6 +31,9 @@ public static class ApiEndpoints
         auth.MapPost("/logout", (Delegate)LogoutAsync).RequireAuthorization();
         auth.MapGet("/session", GetSessionAsync);
         auth.MapGet("/me", GetCurrentUserAsync).RequireAuthorization();
+        auth.MapGet("/providers", GetSocialProviders);
+        auth.MapGet("/external/{provider}", BeginExternalLogin);
+        auth.MapGet("/external/callback", CompleteExternalLoginAsync);
 
         app.MapPut("/api/profile", UpdateProfileAsync).RequireAuthorization();
         app.MapGet("/api/posts", GetPostsAsync).RequireAuthorization();
@@ -77,6 +84,98 @@ public static class ApiEndpoints
         return Results.Ok(user.ToResponse());
     }
 
+    private static IResult GetSocialProviders(SocialAuthAvailability availability) => Results.Ok(availability);
+
+    private static IResult BeginExternalLogin(string provider, SocialAuthAvailability availability)
+    {
+        var scheme = provider.ToLowerInvariant() switch
+        {
+            "google" when availability.Google => GoogleDefaults.AuthenticationScheme,
+            "apple" when availability.Apple => AppleAuthenticationDefaults.AuthenticationScheme,
+            "google" => string.Empty,
+            "apple" => string.Empty,
+            _ => null
+        };
+        if (scheme is null)
+        {
+            return Results.NotFound();
+        }
+        if (scheme.Length == 0)
+        {
+            return Error($"{provider} sign-in is not configured yet.", StatusCodes.Status503ServiceUnavailable);
+        }
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = $"/api/auth/external/callback?provider={Uri.EscapeDataString(scheme)}"
+        };
+        return Results.Challenge(properties, [scheme]);
+    }
+
+    private static async Task<IResult> CompleteExternalLoginAsync(
+        string provider,
+        HttpContext context,
+        DishcoverDbContext db,
+        IPasswordHasher<User> passwordHasher)
+    {
+        var result = await context.AuthenticateAsync(ExternalCookieScheme);
+        if (!result.Succeeded || result.Principal is null)
+        {
+            return Results.Redirect("/?socialError=Social%20sign-in%20could%20not%20be%20completed.");
+        }
+        var email = result.Principal.FindFirstValue(ClaimTypes.Email)?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(email) || !new EmailAddressAttribute().IsValid(email))
+        {
+            await context.SignOutAsync(ExternalCookieScheme);
+            return Results.Redirect("/?socialError=Your%20social%20account%20did%20not%20provide%20a%20valid%20email.");
+        }
+
+        var user = await db.Users.SingleOrDefaultAsync(item => item.Email == email);
+        if (user is null)
+        {
+            var name = result.Principal.FindFirstValue(ClaimTypes.Name)?.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = email.Split('@')[0];
+            }
+            var username = await GenerateUniqueUsernameAsync(db, email.Split('@')[0]);
+            var picture = result.Principal.FindFirstValue("picture");
+            user = new User
+            {
+                Name = name.Length > 50 ? name[..50] : name,
+                Username = username,
+                Email = email,
+                AccountType = "individual",
+                Avatar = Uri.TryCreate(picture, UriKind.Absolute, out _) ? picture! : $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(name)}&backgroundColor=d95538",
+                Cover = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1500&q=85",
+                Location = "Philippines",
+                Bio = $"Joined Dishcover with {provider}. Ready to share something delicious."
+            };
+            var generatedPassword = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)) + "Aa!";
+            user.PasswordHash = passwordHasher.HashPassword(user, generatedPassword);
+            db.Users.Add(user);
+            SeedData.AddStarterConversations(db, user.Id);
+            await db.SaveChangesAsync();
+        }
+
+        await context.SignOutAsync(ExternalCookieScheme);
+        await SignInAsync(context, user, true);
+        return Results.Redirect("/?social=success");
+    }
+
+    private static async Task<string> GenerateUniqueUsernameAsync(DishcoverDbContext db, string source)
+    {
+        var stem = Regex.Replace(source.ToLowerInvariant(), "[^a-z0-9._]", string.Empty);
+        if (stem.Length < 2) stem = "foodlover";
+        if (stem.Length > 24) stem = stem[..24];
+        var candidate = $"@{stem}";
+        var suffix = 1;
+        while (await db.Users.AnyAsync(user => user.Username == candidate))
+        {
+            candidate = $"@{stem}{suffix++}";
+        }
+        return candidate;
+    }
+
     private static async Task<IResult> RegisterAsync(
         RegisterRequest request,
         DishcoverDbContext db,
@@ -100,9 +199,9 @@ public static class ApiEndpoints
         {
             return Error("Enter a valid email address.");
         }
-        if (request.Password.Length < 8)
+        if (!IsStrongPassword(request.Password))
         {
-            return Error("Your password must contain at least 8 characters.");
+            return Error("Password must contain at least 8 characters, an uppercase letter, a lowercase letter, and a special character.");
         }
         if (await db.Users.AnyAsync(user => user.Email == email))
         {
@@ -651,9 +750,9 @@ public static class ApiEndpoints
         {
             return Error("Your current password is incorrect.", StatusCodes.Status401Unauthorized);
         }
-        if (request.NewPassword.Length < 8)
+        if (!IsStrongPassword(request.NewPassword))
         {
-            return Error("Your new password must contain at least 8 characters.");
+            return Error("Your new password must contain at least 8 characters, an uppercase letter, a lowercase letter, and a special character.");
         }
         if (request.CurrentPassword == request.NewPassword)
         {
@@ -709,6 +808,11 @@ public static class ApiEndpoints
         return terms.All(searchable.Contains);
     }
     private static bool IsValidUsername(string username) => Regex.IsMatch(username, "^@[a-z0-9._]{2,30}$");
+    private static bool IsStrongPassword(string password) =>
+        !string.IsNullOrEmpty(password) && password.Length >= 8 &&
+        password.Any(char.IsUpper) &&
+        password.Any(char.IsLower) &&
+        password.Any(character => !char.IsLetterOrDigit(character));
     private static bool IsValidImageSource(string value) =>
         value.Length is > 0 and <= 3_000_000 &&
         (Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" ||

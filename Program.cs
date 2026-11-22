@@ -30,7 +30,20 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
-builder.Services
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var appleClientId = builder.Configuration["Authentication:Apple:ClientId"];
+var appleTeamId = builder.Configuration["Authentication:Apple:TeamId"];
+var appleKeyId = builder.Configuration["Authentication:Apple:KeyId"];
+var applePrivateKey = builder.Configuration["Authentication:Apple:PrivateKey"];
+var googleConfigured = !string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret);
+var appleConfigured = !string.IsNullOrWhiteSpace(appleClientId) &&
+    !string.IsNullOrWhiteSpace(appleTeamId) &&
+    !string.IsNullOrWhiteSpace(appleKeyId) &&
+    !string.IsNullOrWhiteSpace(applePrivateKey);
+builder.Services.AddSingleton(new SocialAuthAvailability(googleConfigured, appleConfigured));
+
+var authentication = builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -53,7 +66,55 @@ builder.Services
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
         };
+    })
+    .AddCookie(ApiEndpoints.ExternalCookieScheme, options =>
+    {
+        options.Cookie.Name = ".Dishcover.External";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
     });
+
+if (googleConfigured)
+{
+    authentication.AddGoogle("Google", options =>
+    {
+        options.SignInScheme = ApiEndpoints.ExternalCookieScheme;
+        options.ClientId = googleClientId!;
+        options.ClientSecret = googleClientSecret!;
+        options.SaveTokens = false;
+        options.Events.OnRemoteFailure = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/?socialError=Google%20sign-in%20was%20cancelled%20or%20failed.");
+            return Task.CompletedTask;
+        };
+    });
+}
+
+if (appleConfigured)
+{
+    authentication.AddApple("Apple", options =>
+    {
+        options.SignInScheme = ApiEndpoints.ExternalCookieScheme;
+        options.ClientId = appleClientId!;
+        options.TeamId = appleTeamId!;
+        options.KeyId = appleKeyId!;
+        options.GenerateClientSecret = true;
+        options.PrivateKey = (_, _) => Task.FromResult<ReadOnlyMemory<char>>(applePrivateKey!.Replace("\\n", "\n").AsMemory());
+        options.SaveTokens = false;
+        options.Events.OnRemoteFailure = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/?socialError=Apple%20sign-in%20was%20cancelled%20or%20failed.");
+            return Task.CompletedTask;
+        };
+    });
+}
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
